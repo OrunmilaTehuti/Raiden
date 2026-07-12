@@ -1,69 +1,56 @@
-from textwrap import dedent
-js=dedent("""
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // 1. Sticky Navigation Scroll Effect
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
 
-const nav=document.querySelector(".navbar");
+    // 2. Mobile Menu Toggle
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
 
-window.addEventListener("scroll",()=>{
-    if(window.scrollY>80){
-        nav.style.background="rgba(0,0,0,.92)";
-        nav.style.boxShadow="0 8px 25px rgba(0,0,0,.4)";
-    }else{
-        nav.style.background="rgba(0,0,0,.35)";
-        nav.style.boxShadow="none";
-    }
-});
+    menuToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        // Simple animation switch for burger icon
+        const bars = document.querySelectorAll('.bar');
+        bars[0].style.transform = navLinks.classList.contains('active') ? 'rotate(-45deg) translate(-5px, 6px)' : 'none';
+        bars[1].style.opacity = navLinks.classList.contains('active') ? '0' : '1';
+        bars[2].style.transform = navLinks.classList.contains('active') ? 'rotate(45deg) translate(-5px, -6px)' : 'none';
+    });
 
-const revealItems=document.querySelectorAll("section, .cards article, .split div, blockquote");
-
-const observer=new IntersectionObserver((entries)=>{
- entries.forEach(entry=>{
-    if(entry.isIntersecting){
-        entry.target.animate([
-            {opacity:0, transform:"translateY(50px)"},
-            {opacity:1, transform:"translateY(0)"}
-        ],{
-            duration:700,
-            easing:"ease-out",
-            fill:"forwards"
+    // Close menu when clicking a link on mobile
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
         });
-        observer.unobserve(entry.target);
-    }
- });
-},{threshold:.15});
+    });
 
-revealItems.forEach(item=>{
-    item.style.opacity="0";
-    observer.observe(item);
-});
+    // 3. City Switcher / Booking Tabs Engine
+    const tabs = document.querySelectorAll('.tab-btn');
+    const vegasEvents = document.getElementById('vegas-events');
+    const miamiEvents = document.getElementById('miami-events');
 
-document.querySelectorAll('a[href^="#"]').forEach(anchor=>{
- anchor.addEventListener("click",function(e){
-    e.preventDefault();
-    const target=document.querySelector(this.getAttribute("href"));
-    if(target){
-        target.scrollIntoView({
-            behavior:"smooth",
-            block:"start"
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active status from all buttons
+            tabs.forEach(t => t.classList.remove('active'));
+            // Add active to clicked button
+            tab.classList.add('active');
+
+            // Handle content view switches
+            const targetCity = tab.getAttribute('data-city');
+            if (targetCity === 'vegas') {
+                vegasEvents.classList.add('active');
+                miamiEvents.classList.remove('active');
+            } else if (targetCity === 'miami') {
+                miamiEvents.classList.add('active');
+                vegasEvents.classList.remove('active');
+            }
         });
-    }
- });
+    });
 });
-
-document.querySelectorAll(".btn").forEach(btn=>{
- btn.addEventListener("mouseenter",()=>{
-    btn.animate([
-        {transform:"scale(1)"},
-        {transform:"scale(1.05)"},
-        {transform:"scale(1)"}
-    ],{duration:300});
- });
-});
-
-console.log("Black Raiden Experiences loaded successfully.");
-
-});
-""")
-path="/mnt/data/main.js"
-open(path,"w").write(js)
-print(path)
